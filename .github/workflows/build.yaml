@@ -1,4 +1,4 @@
-name: test
+name: Build and Experiment
 
 on:
   push:
@@ -28,17 +28,48 @@ jobs:
         echo "OWNER=$owner" >> $GITHUB_ENV
         echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
 
-    - name: echo
-      run: |
-        echo "commit: ${{ github.event.commits[0].id }}"
-        echo "owner: ${{ env.OWNER }}"
-        echo "repo: ${{ env.REPO }}"
-
-    - name: Build and push server image
+    - name: build and push server image
       uses: docker/build-push-action@v2
       with:
         context: .
-        tags: ${{ env.OWNER }}/server:${{ github.event.commits[0].id }}
+        tags: ${{ env.OWNER }}/${{ env.REPO }}:${{ github.event.commits[0].id }}
         file: Dockerfile
         push: true
 
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+    - run: go version
+  
+    - name: Install kind cluster
+      uses: engineerd/setup-kind@v0.5.0
+      with:
+        version: "v0.11.1"
+
+    - name: Install Iter8 CLI
+      run: | 
+        GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8/k8s@30d8d1b
+        mv /usr/local/bin/k8s /usr/local/bin/iter8
+      
+    - run: iter8 -h
+
+    - name: generate random namespace name
+      run: |
+        "NS=test-$(od -An -N1 -i /dev/random)" >> $GITHUB_ENV
+    
+    - run: echo $NS
+
+    - name: deploy new version
+      run: |
+        port=$(echo "$(od -An -N1 -i /dev/random) + 32000" | bc)
+        kubectl create ns $NS
+        kubectl -n $NS apply -f deployment.yaml
+        kubectl port-forward deploy/myservice 8080:$port
+
+    - run: iter8 run
+    - run: iter8 assert -c completed,nofailure,slos
+    - run: iter8 report
+
+    - name: cleanup
+      run: kubectl delete ns $NS
