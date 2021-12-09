@@ -32,14 +32,12 @@ jobs:
 
     - name: Determine image name
       run: |
-        echo "echo IMAGE=${{ env.OWNER }}/${{ env.REPO }}:${{ github.event.commits[0].id }}" >> $GITHUB_ENV
+        echo "IMAGE=${{ env.OWNER }}/${{ env.REPO }}:${{ github.event.commits[0].id }}" >> $GITHUB_ENV
 
     - name: build and push server image
       uses: docker/build-push-action@v2
       with:
-        context: .
         tags: $IMAGE
-        file: Dockerfile
         push: true
 
     - name: Install Go
