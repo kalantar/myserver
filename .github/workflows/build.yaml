@@ -39,7 +39,7 @@ jobs:
     - name: build and push server image
       uses: docker/build-push-action@v2
       with:
-        tags: $IMAGE
+        tags: ${{ env.OWNER }}/${{ env.REPO }}:${{ github.event.commits[0].id }}
         push: true
 
     - name: Install Go
