@@ -2,8 +2,7 @@ name: test
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build-and-experiment:
@@ -21,7 +20,8 @@ jobs:
 
     - name: identify version
       run: |
-        echo "commit: ${{ github.event.commits[0] }}"
+        id=${{ github.event.commits[0].id }}
+        echo "commit: $id"
 
 
     - name: Get owner and repo
