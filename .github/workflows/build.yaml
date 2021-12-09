@@ -56,7 +56,8 @@ jobs:
 
     - name: generate random namespace name
       run: |
-        "echo NS=test-$(od -An -N1 -i /dev/random)" >> $GITHUB_ENV
+        rdm=$(od -An -N1 -i /dev/random | tr -d '[:space:]')
+        echo "NS=test-$rdm" >> $GITHUB_ENV
     
     - run: echo $NS
 
