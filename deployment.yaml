@@ -8,7 +8,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: myservrer
+      app: myserver
   template:
     metadata:
       labels:
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: myserver
-          image: "kalantar/myserver:latest"
+          image: IMAGE
           imagePullPolicy: Always
           resources:
             {}
