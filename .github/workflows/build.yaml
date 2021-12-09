@@ -6,6 +6,8 @@ on:
 
 jobs:
   build:
+    name: build application image
+    runs-on: ubuntu-latest
     steps:
     # Check out code
     - name: Checkout repository
@@ -36,7 +38,13 @@ jobs:
         push: true
 
   deploy:
+    name: deploy application 
+    runs-on: ubuntu-latest
     needs: build
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     - name: Install Go
       uses: actions/setup-go@v2
       with:
@@ -62,6 +70,8 @@ jobs:
         kubectl -n $NS port-forward deploy/myserver $port:8080 &
 
   experiment:
+    name: run iter8 experiment
+    runs-on: ubuntu-latest
     needs: deploy
     steps:
     - name: Install Iter8 CLI
@@ -72,16 +82,3 @@ jobs:
     - run: LOG_LEVEL=trace iter8 run
     - run: iter8 assert -c completed,nofailure,slos
     - run: iter8 report
-
-
-
-  build-and-experiment:
-    name: Build and Experiment
-    runs-on: ubuntu-latest
-    steps:
-
-
-
-
-    - name: cleanup
-      run: kubectl delete ns $NS
