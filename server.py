@@ -5,7 +5,8 @@ import http.server
 import socketserver
 from http import HTTPStatus
 
-version = os.getenv('version')
+version = "v1"
+# version = os.getenv('version', "v1")
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
