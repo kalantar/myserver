@@ -9,7 +9,8 @@ jobs:
     name: build application image
     runs-on: ubuntu-latest
     steps:
-    # Check out code
+
+    # Build new version as docker image and push to registry
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -37,14 +38,7 @@ jobs:
         tags: ${{ env.OWNER }}/${{ env.REPO }}:${{ github.event.commits[0].id }}
         push: true
 
-  deploy:
-    name: deploy application 
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
+  # Deploy new version
     - name: Install Go
       uses: actions/setup-go@v2
       with:
@@ -59,8 +53,6 @@ jobs:
       run: |
         rdm=$(od -An -N1 -i /dev/random | tr -d '[:space:]')
         echo "NS=test-$rdm" >> $GITHUB_ENV
-    
-    - run: echo $NS
 
     - name: deploy new version
       run: |
@@ -69,11 +61,7 @@ jobs:
         sed "s#IMAGE#$IMAGE#" deployment.yaml | kubectl -n $NS apply -f -
         kubectl -n $NS port-forward deploy/myserver $port:8080 &
 
-  experiment:
-    name: run iter8 experiment
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
+  # Run Iter8 experiment
     - name: Install Iter8 CLI
       run: | 
         GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8/k8s@30d8d1b
