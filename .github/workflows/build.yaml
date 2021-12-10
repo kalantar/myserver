@@ -79,7 +79,7 @@ jobs:
       run: echo "promote!"
 
     # remove test directory
-    - name: cleanup
+    - name: cleanup - delete testing artifacts
       if: always()
       run: kubectl delete ns $NS
 
