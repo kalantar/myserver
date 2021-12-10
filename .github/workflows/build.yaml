@@ -62,11 +62,14 @@ jobs:
         kubectl -n $NS port-forward deploy/myserver $port:8080 &
 
   # Run Iter8 experiment
+    # install iter8 CLI
     - name: Install Iter8 CLI
       run: | 
         GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8/k8s@30d8d1b
         mv /usr/local/bin/k8s /usr/local/bin/iter8
     - run: iter8 -h
+
+    # run experiment
     - run: LOG_LEVEL=trace iter8 run
-    - run: iter8 assert -c completed,nofailure,slos
     - run: iter8 report
+    - run: iter8 assert -c completed,nofailure,slos
