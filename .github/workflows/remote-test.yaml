@@ -1,0 +1,31 @@
+name: Remote Experiment
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy_candidate:
+    name: deploy candidate version
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout repository
+      uses: actions/checkout@v2
+    - name: generate random namespace
+      run: | 
+        rdm=$(od -An -N1 -i /dev/random | tr -d '[:space:]')
+        echo "NS=test-$rdm" >> $GITHUB_ENV
+    - name: deploy candidate
+      run: |
+        port=$(echo "$(od -An -N1 -i /dev/random) + 32000" | bc)
+        kubectl create ns $NS
+        sed "s#IMAGE#$IMAGE#" deployment.yaml | kubectl -n $NS apply -f -
+        kubectl -n $NS port-forward deploy/myserver $port:8080 &
+
+  start_experiment:
+    name: start remote experiment
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout repository
+      uses: actions/checkout@v2
+
+    - run: iter8 gen k8s | kubectl apply -f -

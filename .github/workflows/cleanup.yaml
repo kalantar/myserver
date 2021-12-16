@@ -1,0 +1,15 @@
+name: Promote 
+on:
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: 'Test namespace'
+        required: true
+        default: 'test'
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo "Cleanup"
+    - run: echo "kubectl delete --ignore-not-found namespace ${{github.event.inputs.namespace}}"
