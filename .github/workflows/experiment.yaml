@@ -56,4 +56,4 @@ jobs:
       run: |
         sed -i bak -e s#SERVER/$INGRESS_SUBDOMAIN# -e s#PORT/$PORT# experiment.yaml
         cat experiment.yaml
-        iter8 gen k8s | tee | kubectl apply -f -
+        iter8 gen k8s | kubectl apply -f -
