@@ -9,7 +9,7 @@ on:
       image:
         description: 'Application image'
         required: true
-        default: 'kalantar/myservice:latest'
+        default: 'kalantar/myserver:latest'
       ref:
         description: 'The branch, tag or SHA to checkout.'
         required: true
@@ -21,7 +21,7 @@ env:
   IBM_CLOUD_REGION: us-south
   IKS_CLUSTER: kalantar-20211029-1 # name or id of cluster
   NAMESPACE: ${{ github.event.inputs.namespace }}
-  IMAGE: $${{ github.event.inputs.image }}
+  IMAGE: ${{ github.event.inputs.image }}
 
 jobs:
   promote:
@@ -32,7 +32,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        ref: $GITHUB_RE
+        ref: $GITHUB_REF
 
     - name: Install IBM Cloud CLI
       run: | 
