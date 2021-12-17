@@ -24,7 +24,7 @@ env:
   IMAGE: ${{ github.event.inputs.image }}
 
 jobs:
-  promote:
+  deploy:
     runs-on: ubuntu-latest
     steps:
     - run: echo "Deploy"
@@ -32,7 +32,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        ref: ${GITHUB_REF}
+        ref: ${{ github.event.inputs.ref }}
 
     - name: Install IBM Cloud CLI
       run: | 
