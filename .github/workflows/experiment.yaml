@@ -61,6 +61,6 @@ jobs:
 
     - name: Run Iter8 Experiment (in default namespace of cluster)
       run: |
-        sed -i bak -e s#SERVER#$INGRESS_SUBDOMAIN# -e s#PORT#$PORT# experiment.yaml
+        sed -i -e s#SERVER#$INGRESS_SUBDOMAIN# -e s#PORT#$PORT# experiment.yaml
         cat experiment.yaml
         iter8 gen k8s | kubectl apply -f -
