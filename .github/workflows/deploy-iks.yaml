@@ -55,6 +55,10 @@ jobs:
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
         kubectl config current-context
 
+    - name: Create target namespace
+      run: |
+        kubectl create ns $NAMESPACE || true
+
     - name: Deploy app
       run: |
         sed "s#IMAGE#$IMAGE#" deployment.yaml | kubectl -n $NAMESPACE apply -f deployment.yaml
