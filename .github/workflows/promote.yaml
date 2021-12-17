@@ -1,9 +1,14 @@
 name: Promote 
 on:
   workflow_dispatch:
+    inputs:
+      image:
+        description: 'Image of version to promote'
+        required: true
+        default: 'kalantar/myserver:latest'
 
 jobs:
   promote:
     runs-on: ubuntu-latest
     steps:
-    - run: echo "promote!"
+    - run: echo "promote ${{ github.event.inputs.image }}"
