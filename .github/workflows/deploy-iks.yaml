@@ -16,8 +16,8 @@ on:
         default: 'master'
 
 env:
-  GITHUB_REF: ${{ github.event.inputs.ref }}
   IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+  IBM_CLOUD_RESOURCE_GROUP: 585330279c4b4175890b5c59dab786fb
   IBM_CLOUD_REGION: us-south
   # IKS_CLUSTER: kalantar-20211029-1 # name or id of cluster
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
@@ -49,10 +49,14 @@ jobs:
         ibmcloud cr region-set "${IBM_CLOUD_REGION}"
         ibmcloud cr login
       
-    - name: Deploy app
+    - name: Identify target cluster
       run: |
+        ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
         kubectl config current-context
+
+    - name: Deploy app
+      run: |
         sed "s#IMAGE#$IMAGE#" deployment.yaml | kubectl -n $NAMESPACE apply -f deployment.yaml
         kubectl -n $NAMESPACE get deploy,svc
         port=$(kubectl -n $NAMESPACE get svc/myservice -o jsonpath='{.spec.ports[0].nodePort}')

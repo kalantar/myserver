@@ -12,7 +12,6 @@ on:
         default: '30001'
 
 env:
-  GITHUB_REF: ${{ github.event.inputs.ref }}
   INGRESS_SUBDOMAIN: 'kalantar-20211029-1-f0f5a1e5d9c5f09a7767f1f253010cba-0000.us-south.containers.appdomain.cloud'
   PORT: ${{ github.event.inputs.port }}
 
@@ -24,7 +23,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
-        ref: $GITHUB_REF
+        ref: ${{ github.event.inputs.ref }}
 
     - name: Install IBM Cloud CLI
       run: | 
