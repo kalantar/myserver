@@ -1,0 +1,58 @@
+name: Deploy to IKS 
+on:
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: 'Test namespace'
+        required: true
+        default: 'test'
+      image:
+        description: 'Application image'
+        required: true
+        default: 'kalantar/myservice:latest'
+      ref:
+        description: 'The branch, tag or SHA to checkout.'
+        required: true
+        default: 'master'
+
+env:
+  GITHUB_REF: ${{ github.event.inputs.ref }}
+  IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+  IBM_CLOUD_REGION: us-south
+  IKS_CLUSTER: kalantar-20211029-1 # name or id of cluster
+  NAMESPACE: ${{ github.event.inputs.namespace }}
+  IMAGE: $${{ github.event.inputs.image }}
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo "Deploy"
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: $GITHUB_RE
+
+    - name: Install IBM Cloud CLI
+      run: | 
+        curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        ibmcloud --version
+        ibmcloud config --check-version=false
+        ibmcloud plugin install -f kubernetes-service
+        ibmcloud plugin install -f container-registry
+
+    - name: Authenticate with IBM Cloud CLI
+      run: |
+        ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
+        ibmcloud cr region-set "${IBM_CLOUD_REGION}"
+        ibmcloud cr login
+      
+    - name: Deploy app
+      run: |
+        ibmcloud ks cluster config --cluster $IKS_CLUSTER
+        kubectl config current-context
+        sed "s#IMAGE#$IMAGE#" deployment.yaml | kubectl -n $NAMESPACE apply -f deployment.yaml
+        kubectl -n $NAMESPACE get deploy,svc
+        port=$(kubectl -n $NAMESPACE get svc/myservice -o jsonpath='{.spec.ports[0].nodePort}')
+        echo "port = $port"

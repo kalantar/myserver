@@ -7,7 +7,7 @@
     errorRanges:
     - lower: 400
     versionInfo:
-    - url: http://localhost:8080
+    - url: http://SERVER:PORT
 
 - run: sleep 5
 

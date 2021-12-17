@@ -1,0 +1,59 @@
+name: Run Iter8 Experiment 
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'The branch, tag or SHA to checkout.'
+        required: true
+        default: 'master'
+      port:
+        description: 'Port of application'
+        required: true
+        default: '30001'
+
+env:
+  GITHUB_REF: ${{ github.event.inputs.ref }}
+  INGRESS_SUBDOMAIN: 'kalantar-20211029-1-f0f5a1e5d9c5f09a7767f1f253010cba-0000.us-south.containers.appdomain.cloud'
+  PORT: ${{ github.event.inputs.port }}
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: $GITHUB_REF
+
+    - name: Install IBM Cloud CLI
+      run: | 
+        curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        ibmcloud --version
+        ibmcloud config --check-version=false
+        ibmcloud plugin install -f kubernetes-service
+        ibmcloud plugin install -f container-registry
+
+    - name: Authenticate with IBM Cloud CLI
+      run: |
+        ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
+        ibmcloud cr region-set "${IBM_CLOUD_REGION}"
+        ibmcloud cr login
+
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Install Iter8 CLI
+      run: | 
+        GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8
+        mv /usr/local/bin/k8s /usr/local/bin/iter8
+
+    - run: iter8 -h
+
+    - name: Run Iter8 Experiment (in default namespace of cluster)
+      run: |
+        sed -i bak -e s#SERVER/$INGRESS_SUBDOMAIN# -e s#PORT/$PORT# experiment.yaml
+        cat experiment.yaml
+        iter8 gen k8s | tee | kubectl apply -f -
