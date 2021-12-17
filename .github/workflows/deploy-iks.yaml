@@ -19,7 +19,8 @@ env:
   GITHUB_REF: ${{ github.event.inputs.ref }}
   IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
   IBM_CLOUD_REGION: us-south
-  IKS_CLUSTER: kalantar-20211029-1 # name or id of cluster
+  # IKS_CLUSTER: kalantar-20211029-1 # name or id of cluster
+  IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
   NAMESPACE: ${{ github.event.inputs.namespace }}
   IMAGE: ${{ github.event.inputs.image }}
 
