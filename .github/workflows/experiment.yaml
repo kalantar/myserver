@@ -12,11 +12,15 @@ on:
         default: '30001'
 
 env:
+  IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+  IBM_CLOUD_RESOURCE_GROUP: 585330279c4b4175890b5c59dab786fb
+  IBM_CLOUD_REGION: us-south
+  IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
   INGRESS_SUBDOMAIN: 'kalantar-20211029-1-f0f5a1e5d9c5f09a7767f1f253010cba-0000.us-south.containers.appdomain.cloud'
   PORT: ${{ github.event.inputs.port }}
 
 jobs:
-  promote:
+  experiment:
     runs-on: ubuntu-latest
     steps:
 
@@ -38,6 +42,12 @@ jobs:
         ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
         ibmcloud cr region-set "${IBM_CLOUD_REGION}"
         ibmcloud cr login
+
+    - name: Identify target cluster
+      run: |
+        ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
+        ibmcloud ks cluster config --cluster $IKS_CLUSTER
+        kubectl config current-context
 
     - name: Install Go
       uses: actions/setup-go@v2
