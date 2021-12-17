@@ -61,6 +61,7 @@ jobs:
 
     - name: Deploy app
       run: |
+        echo $IMAGE
         sed "s#IMAGE#$IMAGE#" deployment.yaml | kubectl -n $NAMESPACE apply -f deployment.yaml
         kubectl -n $NAMESPACE get deploy,svc
         port=$(kubectl -n $NAMESPACE get svc/myservice -o jsonpath='{.spec.ports[0].nodePort}')
