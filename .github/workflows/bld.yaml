@@ -22,12 +22,9 @@ jobs:
         fi
         echo "OWNER=$owner" >> $GITHUB_ENV
         echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
-        echo "COMMIT=$(echo ${{ github.event.commits[0].id }})" >> $GITHUB_ENV
-        echo "COMMIT ${{ env.COMMIT }}"
-        echo "sha = ${{ github.sha }}"
 
-    - run: echo "IMAGE=${{ env.OWNER }}/${{ env.REPO }}:${{ env.COMMIT }}" >> $GITHUB_ENV
-    - run: echo "NS=test-$${{ env.COMMIT }}"
+    - run: echo "IMAGE=${{ env.OWNER }}/${{ env.REPO }}:${{ github.sha }}" >> $GITHUB_ENV
+    - run: echo "NS=test-$${{ github.sha }}"
 
     # Build and push image (to DockerHub)
     - uses: docker/setup-buildx-action@v1
