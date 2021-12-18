@@ -61,7 +61,6 @@ jobs:
 
     - name: Run Iter8 Experiment (in default namespace of cluster)
       run: |
-        sed -i -e s#SERVER#$INGRESS_SUBDOMAIN# -e s#PORT#$PORT# experiment.yaml
         iter8 gen exp \
           --set url="http://$INGRESS_SUBDOMAIN:$PORT" \
           --set image="kalantar/myserver:${{ github.event.inputs.ref }}" \
