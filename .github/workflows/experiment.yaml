@@ -68,4 +68,4 @@ jobs:
           --set user=USER \
           --set token=TOKEN
         cat experiment.yaml
-        iter8 gen k8s | kubectl apply -f -
+        iter8 gen k8s --set loglevel=trace | kubectl apply -f -
