@@ -76,4 +76,4 @@ jobs:
 
     - name: Deploy app
       # run: iter8 gen go -t deployment.tpl | kubectl -n $NAMESPACE apply -f -
-      run: iter8 gen go --set image=| kubectl -n $NAMESPACE apply -f -
+      run: iter8 gen go --set image=$IMAGE | kubectl -n $NAMESPACE apply -f -
