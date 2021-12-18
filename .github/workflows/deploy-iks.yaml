@@ -2,24 +2,27 @@ name: Deploy to IKS
 on:
   workflow_dispatch:
     inputs:
-      namespace:
-        description: 'Test namespace'
-        required: true
-        default: 'test'
-      image:
-        description: 'Application image'
-        required: true
-        default: 'kalantar/myserver:latest'
+      # source of deployment.tpl
       ref:
         description: 'The branch, tag or SHA to checkout.'
         required: true
         default: 'master'
+      # image to deploy
+      image:
+        description: 'Application image'
+        required: true
+        default: 'kalantar/myserver:latest'
+      # target namespace
+      namespace:
+        description: 'Test namespace'
+        required: true
+        default: 'test'
 
 env:
   IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
   IBM_CLOUD_RESOURCE_GROUP: 585330279c4b4175890b5c59dab786fb
   IBM_CLOUD_REGION: us-south
-  # IKS_CLUSTER: kalantar-20211029-1 # name or id of cluster
+  # IKS_CLUSTER: kalantar-20211029-1 # name does not work
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
   NAMESPACE: ${{ github.event.inputs.namespace }}
   IMAGE: ${{ github.event.inputs.image }}
@@ -30,11 +33,22 @@ jobs:
     steps:
     - run: echo "Deploy"
 
+    # Setup: Checkout repo so have correct version of deployment.tpl
     - name: Checkout repository
       uses: actions/checkout@v2
       with:
         ref: ${{ github.event.inputs.ref }}
 
+    # Setup: Install Go/Iter8 so can use iter8 gen go -t deployment.tpl
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Install Iter8 CLI
+      run: GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8@latest
+
+    # Setup: Install IBM Cloud CLI
     - name: Install IBM Cloud CLI
       run: | 
         curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
@@ -42,6 +56,7 @@ jobs:
         ibmcloud config --check-version=false
         ibmcloud plugin install -f kubernetes-service
         ibmcloud plugin install -f container-registry
+
 
     - name: Authenticate with IBM Cloud CLI
       run: |
@@ -60,8 +75,5 @@ jobs:
         kubectl create ns $NAMESPACE || true
 
     - name: Deploy app
-      run: |
-        sed "s#IMAGE#$IMAGE#" deployment.yaml | kubectl -n $NAMESPACE apply -f -
-        kubectl -n $NAMESPACE get deploy,svc
-        port=$(kubectl -n $NAMESPACE get svc/myservice -o jsonpath='{.spec.ports[0].nodePort}')
-        echo "port = $port"
+      # run: iter8 gen go -t deployment.tpl | kubectl -n $NAMESPACE apply -f -
+      run: iter8 gen go | kubectl -n $NAMESPACE apply -f -

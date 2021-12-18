@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: myserver
-          image: IMAGE
+          image: {{ .image }}
           imagePullPolicy: Always
           resources:
             {}

@@ -62,6 +62,7 @@ jobs:
     - name: Run Iter8 Experiment (in default namespace of cluster)
       run: |
         iter8 gen exp \
+          --set ref=${{ github.event.inputs.ref }} \
           --set url="http://$INGRESS_SUBDOMAIN:$PORT" \
           --set image="kalantar/myserver:${{ github.event.inputs.ref }}" \
           --set namespace="test-${{ github.event.inputs.ref }}" \

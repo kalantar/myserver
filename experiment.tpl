@@ -26,7 +26,7 @@
     curl -X POST \
       -H "Accept: application/vnd.github.v3+json" \
       https://api.github.com/repos/kalantar/myserver/actions/workflows/deploy-iks.yaml/dispatches  \
-      -d '{ "ref": "main", "inputs": { "ref": "", "namespace": "{{ .namespace }}", "image": "{{ .image }}" }}' \
+      -d '{ "ref": "main", "inputs": { "ref": "{{ .ref }}", "namespace": "{{ .namespace }}", "image": "{{ .image }}" }}' \
       --user {{ .user }}:{{ .token }}
     curl -X POST \
       -H "Accept: application/vnd.github.v3+json" \
