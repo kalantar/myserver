@@ -1,0 +1,150 @@
+name: Build 
+on:
+  workflow_dispatch:
+
+env:
+  IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+  IBM_CLOUD_RESOURCE_GROUP: 585330279c4b4175890b5c59dab786fb
+  IBM_CLOUD_REGION: us-south
+  # IKS_CLUSTER: kalantar-20211029-1 # name does not work
+  IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
+  INGRESS_SUBDOMAIN: 'kalantar-20211029-1-f0f5a1e5d9c5f09a7767f1f253010cba-0000.us-south.containers.appdomain.cloud'
+
+jobs:
+  build:
+    name: Build and Start Test of Candidate Version
+    runs-on: ubuntu-latest
+    steps:
+
+    # Build new version as docker image and push to registry
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Set up docker, determine image tag
+    - name: Extract details from event
+      run: |
+        ownerrepo=${{ github.repository }}
+        owner=$(echo $ownerrepo | cut -f1 -d/)
+        if [[ "$owner" == "iter8-tools" ]]; then
+          owner=iter8
+        fi
+        echo "OWNER=$owner" >> $GITHUB_ENV
+        echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
+
+    - run: echo "IMAGE=${{ env.OWNER }}/${{ env.REPO }}:${{ github.sha }}" >> $GITHUB_ENV
+    - run: echo "NAMESPACE=test-${{ github.sha }}"
+
+    # Build and push image (to DockerHub)
+    - uses: docker/setup-buildx-action@v1
+    - uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_SECRET }}
+    - name: Build and push image
+      uses: docker/build-push-action@v2
+      with:
+        tags: ${{ env.IMAGE }}
+        push: true
+        
+
+
+
+    - run: echo "Deploy"
+
+    # # Setup: Checkout repo so have correct version of deployment.tpl
+    # - name: Checkout repository
+    #   uses: actions/checkout@v2
+    #   with:
+    #     ref: ${{ github.event.inputs.ref }}
+
+    # Setup: Install Go/Iter8 so can use iter8 gen go -t deployment.tpl
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Install Iter8 CLI
+      run: GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8@latest
+
+    # Setup: Install IBM Cloud CLI
+    - name: Install IBM Cloud CLI
+      run: | 
+        curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        ibmcloud --version
+        ibmcloud config --check-version=false
+        ibmcloud plugin install -f kubernetes-service
+        ibmcloud plugin install -f container-registry
+
+
+    - name: Authenticate with IBM Cloud CLI
+      run: |
+        ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
+        ibmcloud cr region-set "${IBM_CLOUD_REGION}"
+        ibmcloud cr login
+      
+    - name: Identify target cluster
+      run: |
+        ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
+        ibmcloud ks cluster config --cluster $IKS_CLUSTER
+        kubectl config current-context
+
+    - name: Create target namespace
+      run: |
+        kubectl create ns $NAMESPACE || true
+
+    - name: Deploy app
+      # run: iter8 gen go -t deployment.tpl | kubectl -n $NAMESPACE apply -f -
+      run: iter8 gen go --set image=$IMAGE | kubectl -n $NAMESPACE apply -f -
+
+    - name: Wait for app to Start
+      run: kubectl -n $NAMESPACE wait --for=condition=available --timeout=60s --all deployments 
+    - name: Determine port
+      run: |
+        port=$(kubectl -n test-$GITHUB_REF get svc myservice -o jsonpath='{.spec.ports[0].nodePort}')
+        echo "PORT=$port" >> $GITHUB_ENV
+    # - name: Checkout repository
+    #   uses: actions/checkout@v2
+    #   with:
+    #     ref: ${{ github.event.inputs.ref }}
+
+    # - name: Install IBM Cloud CLI
+    #   run: | 
+    #     curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+    #     ibmcloud --version
+    #     ibmcloud config --check-version=false
+    #     ibmcloud plugin install -f kubernetes-service
+    #     ibmcloud plugin install -f container-registry
+
+    # - name: Authenticate with IBM Cloud CLI
+    #   run: |
+    #     ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
+    #     ibmcloud cr region-set "${IBM_CLOUD_REGION}"
+    #     ibmcloud cr login
+
+    # - name: Identify target cluster
+    #   run: |
+    #     ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
+    #     ibmcloud ks cluster config --cluster $IKS_CLUSTER
+    #     kubectl config current-context
+
+    # - name: Install Go
+    #   uses: actions/setup-go@v2
+    #   with:
+    #     go-version: 1.17
+
+    # - name: Install Iter8 CLI
+    #   run: GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8@latest
+
+    # - run: iter8 -h
+
+    - name: Run Iter8 Experiment (in default namespace of cluster)
+      run: |
+        iter8 gen exp \
+          --set ref=$${{ github.sha }} \
+          --set url="http://$INGRESS_SUBDOMAIN:$PORT" \
+          --set image="$IMAGE" \
+          --set namespace="$NAMESPACE" \
+          --set user='$USER' \
+          --set token='$TOKEN'
+        cat experiment.yaml
+        iter8 gen k8s --set loglevel=trace | kubectl apply -f -
