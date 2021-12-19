@@ -100,7 +100,7 @@ jobs:
       run: kubectl -n ${{ env.NAMESPACE }} wait --for=condition=available --timeout=60s --all deployments 
     - name: Determine port
       run: |
-        port=$(kubectl -n $${{ env.NAMESPACE }} get svc myservice -o jsonpath='{.spec.ports[0].nodePort}')
+        port=$(kubectl -n ${{ env.NAMESPACE }} get svc myservice -o jsonpath='{.spec.ports[0].nodePort}')
         echo "PORT=$port" >> $GITHUB_ENV
     # - name: Checkout repository
     #   uses: actions/checkout@v2
@@ -140,7 +140,7 @@ jobs:
     - name: Run Iter8 Experiment (in default namespace of cluster)
       run: |
         iter8 gen exp \
-          --set ref=$${{ github.sha }} \
+          --set ref=${{ github.sha }} \
           --set url="http://$INGRESS_SUBDOMAIN:$PORT" \
           --set image="${{ env.IMAGE }}" \
           --set namespace="${{ env.NAMESPACE }}" \
