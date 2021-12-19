@@ -32,7 +32,7 @@ jobs:
         echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
 
     - run: echo "IMAGE=${{ env.OWNER }}/${{ env.REPO }}:${{ github.sha }}" >> $GITHUB_ENV
-    - run: echo "NAMESPACE=test-${{ github.sha }}"
+    - run: echo "NAMESPACE=test-${{ github.sha }}" >> $GITHUB_ENV
 
     # Build and push image (to DockerHub)
     - uses: docker/setup-buildx-action@v1
