@@ -1,4 +1,4 @@
-name: Build 
+name: Build, Deploy and Iter8
 on:
   workflow_dispatch:
 
@@ -90,17 +90,17 @@ jobs:
 
     - name: Create target namespace
       run: |
-        kubectl create ns $NAMESPACE || true
+        kubectl create ns ${{ env.NAMESPACE }} || true
 
     - name: Deploy app
       # run: iter8 gen go -t deployment.tpl | kubectl -n $NAMESPACE apply -f -
-      run: iter8 gen go --set image=$IMAGE | kubectl -n $NAMESPACE apply -f -
+      run: iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
 
     - name: Wait for app to Start
-      run: kubectl -n $NAMESPACE wait --for=condition=available --timeout=60s --all deployments 
+      run: kubectl -n ${{ env.NAMESPACE }} wait --for=condition=available --timeout=60s --all deployments 
     - name: Determine port
       run: |
-        port=$(kubectl -n test-$GITHUB_REF get svc myservice -o jsonpath='{.spec.ports[0].nodePort}')
+        port=$(kubectl -n $${{ env.NAMESPACE }} get svc myservice -o jsonpath='{.spec.ports[0].nodePort}')
         echo "PORT=$port" >> $GITHUB_ENV
     # - name: Checkout repository
     #   uses: actions/checkout@v2
@@ -142,8 +142,8 @@ jobs:
         iter8 gen exp \
           --set ref=$${{ github.sha }} \
           --set url="http://$INGRESS_SUBDOMAIN:$PORT" \
-          --set image="$IMAGE" \
-          --set namespace="$NAMESPACE" \
+          --set image="${{ env.IMAGE }}" \
+          --set namespace="${{ env.NAMESPACE }}" \
           --set user='$USER' \
           --set token='$TOKEN'
         cat experiment.yaml
