@@ -1,10 +1,18 @@
-name: Cleanup 
+name: Deploy to IKS 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
+      # image to deploy
+      image:
+        description: 'Application image'
+        required: true
+        type: string
+        default: 'kalantar/myserver:latest'
+      # target namespace
       namespace:
         description: 'Test namespace'
         required: true
+        type: string
         default: 'test'
 
 env:
@@ -13,17 +21,24 @@ env:
   IBM_CLOUD_REGION: us-south
   # IKS_CLUSTER: kalantar-20211029-1 # name does not work
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
-  NAMESPACE: ${{ github.event.inputs.namespace }}
+  IMAGE: ${{ github.event.inputs.image }}
 
 jobs:
-  promote:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-    - run: echo "Cleanup"
+    - run: echo "Deploy"
 
-    - run: echo ${{ github.sha }}
+    # Setup: Install Go/Iter8 so can use iter8 gen go -t deployment.tpl
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
 
-        # Setup: Install IBM Cloud CLI
+    - name: Install Iter8 CLI
+      run: GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8@latest
+
+    # Setup: Install IBM Cloud CLI
     - name: Install IBM Cloud CLI
       run: | 
         curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
@@ -38,11 +53,17 @@ jobs:
         ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
         ibmcloud cr region-set "${IBM_CLOUD_REGION}"
         ibmcloud cr login
-
+      
     - name: Identify target cluster
       run: |
         ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
         kubectl config current-context
 
-    - run: kubectl delete --ignore-not-found namespace $NAMESPACE
+    # - name: Create target namespace
+    #   run: |
+    #     kubectl create ns ${{ inputs.namespace }} || true
+
+    - name: Deploy app
+      # run: iter8 gen go -t deployment.tpl | kubectl -n $NAMESPACE apply -f -
+      run: iter8 gen go --set image=${{ inputs.image }} | kubectl -n ${{ inputs.namespace }} apply -f -

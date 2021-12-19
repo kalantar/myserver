@@ -25,15 +25,19 @@
     echo "Promote"
     curl -X POST \
       -H "Accept: application/vnd.github.v3+json" \
-      https://api.github.com/repos/kalantar/myserver/actions/workflows/deploy-iks.yaml/dispatches  \
-      -d '{ "ref": "main", "inputs": { "ref": "{{ .ref }}", "namespace": "prod", "image": "{{ .image }}" }}' \
+      https://api.github.com/repos/kalantar/myserver/actions/workflows/promote.yaml/dispatches  \
+      -d '{ "ref": "main", "inputs": { "ref": "{{ .ref }}", "namespace": "{{ .namespace }}", "image": "{{ .image }}" }}' \
       --user {{ .user }}:{{ .token }}
-    curl -X POST \
-      -H "Accept: application/vnd.github.v3+json" \
-      https://api.github.com/repos/kalantar/myserver/actions/workflows/cleanup.yaml/dispatches  \
-      -d '{ "ref": "main", "inputs": { "namespace": "{{ .namespace }}" }}' \
-      --user {{ .user }}:{{ .token }}
-
+#    curl -X POST \
+#      -H "Accept: application/vnd.github.v3+json" \
+#      https://api.github.com/repos/kalantar/myserver/actions/workflows/deploy-iks.yaml/dispatches  \
+#      -d '{ "ref": "main", "inputs": { "ref": "{{ .ref }}", "namespace": "prod", "image": "{{ .image }}" }}' \
+#      --user {{ .user }}:{{ .token }}
+#    curl -X POST \
+#      -H "Accept: application/vnd.github.v3+json" \
+#      https://api.github.com/repos/kalantar/myserver/actions/workflows/cleanup.yaml/dispatches  \
+#      -d '{ "ref": "main", "inputs": { "namespace": "{{ .namespace }}" }}' \
+#      --user {{ .user }}:{{ .token }}
 
 # task 4: if SLOs are not satisfied, do something else
 - if: not SLOs()

@@ -1,10 +1,11 @@
 name: Cleanup 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       namespace:
         description: 'Test namespace'
         required: true
+        type: string
         default: 'test'
 
 env:
@@ -13,15 +14,12 @@ env:
   IBM_CLOUD_REGION: us-south
   # IKS_CLUSTER: kalantar-20211029-1 # name does not work
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
-  NAMESPACE: ${{ github.event.inputs.namespace }}
 
 jobs:
   promote:
     runs-on: ubuntu-latest
     steps:
     - run: echo "Cleanup"
-
-    - run: echo ${{ github.sha }}
 
         # Setup: Install IBM Cloud CLI
     - name: Install IBM Cloud CLI
@@ -31,7 +29,6 @@ jobs:
         ibmcloud config --check-version=false
         ibmcloud plugin install -f kubernetes-service
         ibmcloud plugin install -f container-registry
-
 
     - name: Authenticate with IBM Cloud CLI
       run: |
@@ -45,4 +42,4 @@ jobs:
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
         kubectl config current-context
 
-    - run: kubectl delete --ignore-not-found namespace $NAMESPACE
+    - run: kubectl delete --ignore-not-found namespace ${{ inputs.namespace }}

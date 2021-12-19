@@ -6,9 +6,24 @@ on:
         description: 'Image of version to promote'
         required: true
         default: 'kalantar/myserver:latest'
+      namespace:
+        description: 'Test namespace'
+        required: true
+        default: 'test'
 
 jobs:
   promote:
     runs-on: ubuntu-latest
     steps:
     - run: echo "promote ${{ github.event.inputs.image }}"
+
+    - name: Deploy to prod
+      uses: kalantar/myserver/.github/workflows/deploy-iks-reusable.yaml@main
+      with:
+        image: ${{ github.event.inputs.image }}
+        namespace: prod
+
+    - name: Cleanup Test
+      uses: kalantar/myserver/.github/workflows/deploy-iks-reusable.yaml@main
+      with:
+        namespace: ${{ github.event.inputs.namespace }}
