@@ -21,7 +21,6 @@ env:
   IBM_CLOUD_REGION: us-south
   # IKS_CLUSTER: kalantar-20211029-1 # name does not work
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
-  IMAGE: ${{ github.event.inputs.image }}
 
 jobs:
   deploy:
@@ -47,7 +46,6 @@ jobs:
         ibmcloud plugin install -f kubernetes-service
         ibmcloud plugin install -f container-registry
 
-
     - name: Authenticate with IBM Cloud CLI
       run: |
         ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
@@ -59,10 +57,6 @@ jobs:
         ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
         kubectl config current-context
-
-    # - name: Create target namespace
-    #   run: |
-    #     kubectl create ns ${{ inputs.namespace }} || true
 
     - name: Deploy app
       # run: iter8 gen go -t deployment.tpl | kubectl -n $NAMESPACE apply -f -

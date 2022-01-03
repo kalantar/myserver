@@ -1,4 +1,4 @@
-name: Promote 
+name: Promote (via Notify) and Cleanup
 on:
   workflow_dispatch:
     inputs:
@@ -7,23 +7,66 @@ on:
         required: true
         default: 'kalantar/myserver:latest'
       namespace:
-        description: 'Test namespace'
+        description: 'Test namespace to remove'
         required: true
         default: 'test'
+
+env:
+  IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+  IBM_CLOUD_RESOURCE_GROUP: 585330279c4b4175890b5c59dab786fb
+  IBM_CLOUD_REGION: us-south
+  # IKS_CLUSTER: kalantar-20211029-1 # name does not work
+  IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
+
+  IMAGE: ${{ github.event.inputs.image }}
+  NAMESPACE: ${{ github.event.inputs.namespace }}
 
 jobs:
   promote:
     runs-on: ubuntu-latest
     steps:
-    - run: echo "promote ${{ github.event.inputs.image }}"
+    - run: echo "Deploy ${{ github.event.inputs.image }} to prod"
 
-    - name: Deploy to prod
-      uses: kalantar/myserver/.github/workflows/deploy-iks-reusable.yaml@main
+    # Setup: Install Go/Iter8 so can use iter8 gen go -t deployment.tpl
+    # Setup: Install Go/Iter8 so can use iter8 gen go to generate a deployment.yaml
+    # An alternative would be helm or kustomize
+    - name: Install Go
+      uses: actions/setup-go@v2
       with:
-        image: ${{ github.event.inputs.image }}
-        namespace: prod
+        go-version: 1.17
 
-    - name: Cleanup Test
-      uses: kalantar/myserver/.github/workflows/deploy-iks-reusable.yaml@main
-      with:
-        namespace: ${{ github.event.inputs.namespace }}
+    - name: Install Iter8 CLI
+      run: GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8@latest
+
+    # Setup: Install IBM Cloud CLI
+    - name: Install IBM Cloud CLI
+      run: | 
+        curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        ibmcloud --version
+        ibmcloud config --check-version=false
+        ibmcloud plugin install -f kubernetes-service
+        ibmcloud plugin install -f container-registry
+
+    - name: Authenticate with IBM Cloud CLI
+      run: |
+        ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
+        ibmcloud cr region-set "${IBM_CLOUD_REGION}"
+        ibmcloud cr login
+      
+    - name: Identify target cluster
+      run: |
+        ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
+        ibmcloud ks cluster config --cluster $IKS_CLUSTER
+        kubectl config current-context
+
+
+    # Do promotion
+    - name: Deploy app
+      # run: iter8 gen go -t deployment.tpl | kubectl -n $NAMESPACE apply -f -
+      run: iter8 gen go --set image=$IMAGE | kubectl -n $NAMESPACE apply -f -
+
+
+
+  # Cleanup Iter8 test by deleting test namespace
+    - run: echo "Cleanup Test for build ${{ github.sha }}"
+    - run: kubectl delete --ignore-not-found namespace $NAMESPACE

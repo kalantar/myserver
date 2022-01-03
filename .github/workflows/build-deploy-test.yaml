@@ -1,4 +1,4 @@
-name: Build, Deploy and Iter8
+name: Build, Deploy and Initiate Iter8
 on:
   workflow_dispatch:
 
@@ -32,7 +32,7 @@ jobs:
         echo "REPO=$(echo $ownerrepo | cut -f2 -d/)" >> $GITHUB_ENV
 
     - run: echo "IMAGE=${{ env.OWNER }}/${{ env.REPO }}:${{ github.sha }}" >> $GITHUB_ENV
-    - run: echo "NAMESPACE=test-${{ github.sha }}" >> $GITHUB_ENV
+    - run: echo "NAMESPACE=initiate-test-${{ github.sha }}" >> $GITHUB_ENV
 
     # Build and push image (to DockerHub)
     - uses: docker/setup-buildx-action@v1
@@ -51,13 +51,9 @@ jobs:
 
     - run: echo "Deploy"
 
-    # # Setup: Checkout repo so have correct version of deployment.tpl
-    # - name: Checkout repository
-    #   uses: actions/checkout@v2
-    #   with:
-    #     ref: ${{ github.event.inputs.ref }}
-
-    # Setup: Install Go/Iter8 so can use iter8 gen go -t deployment.tpl
+    # Setup: Install Go/Iter8 so can use iter8 gen go to generate a deployment.yaml
+    # An alternative would be helm or kustomize
+    # Iter8 is, of course, also used for iter8 gen k8s to initiate the experiment
     - name: Install Go
       uses: actions/setup-go@v2
       with:
@@ -93,7 +89,6 @@ jobs:
         kubectl create ns ${{ env.NAMESPACE }} || true
 
     - name: Deploy app
-      # run: iter8 gen go -t deployment.tpl | kubectl -n $NAMESPACE apply -f -
       run: iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
 
     - name: Wait for app to Start
@@ -102,41 +97,10 @@ jobs:
       run: |
         port=$(kubectl -n ${{ env.NAMESPACE }} get svc myservice -o jsonpath='{.spec.ports[0].nodePort}')
         echo "PORT=$port" >> $GITHUB_ENV
-    # - name: Checkout repository
-    #   uses: actions/checkout@v2
-    #   with:
-    #     ref: ${{ github.event.inputs.ref }}
 
-    # - name: Install IBM Cloud CLI
-    #   run: | 
-    #     curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
-    #     ibmcloud --version
-    #     ibmcloud config --check-version=false
-    #     ibmcloud plugin install -f kubernetes-service
-    #     ibmcloud plugin install -f container-registry
 
-    # - name: Authenticate with IBM Cloud CLI
-    #   run: |
-    #     ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
-    #     ibmcloud cr region-set "${IBM_CLOUD_REGION}"
-    #     ibmcloud cr login
-
-    # - name: Identify target cluster
-    #   run: |
-    #     ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
-    #     ibmcloud ks cluster config --cluster $IKS_CLUSTER
-    #     kubectl config current-context
-
-    # - name: Install Go
-    #   uses: actions/setup-go@v2
-    #   with:
-    #     go-version: 1.17
-
-    # - name: Install Iter8 CLI
-    #   run: GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8@latest
-
-    # - run: iter8 -h
-
+    # Initiate Iter8 experiment by creating experiment
+    # Then deploying it
     - name: Run Iter8 Experiment (in default namespace of cluster)
       run: |
         iter8 gen exp \
