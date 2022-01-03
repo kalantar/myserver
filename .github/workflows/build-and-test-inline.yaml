@@ -1,4 +1,4 @@
-name: Build and Run (inline) Iter8 Experiment
+name: Build and Deploy Candidate; Run Iter8 Experiment
 
 on:
   push:
@@ -10,12 +10,13 @@ env:
   IBM_CLOUD_REGION: us-south
   # IKS_CLUSTER: kalantar-20211029-1 # name does not work
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
+  INGRESS_SUBDOMAIN: 'kalantar-20211029-1-f0f5a1e5d9c5f09a7767f1f253010cba-0000.us-south.containers.appdomain.cloud'
 
   PROD_NAMESPACE: prod-inline
 
 jobs:
   build:
-    name: build application image
+    name: build, deploy and run
     runs-on: ubuntu-latest
     steps:
 
@@ -46,13 +47,12 @@ jobs:
     - name: Build and push image
       uses: docker/build-push-action@v2
       with:
-        tags: ${{ env.IMAGE }}${{ env.IMAGE }}
+        tags: ${{ env.IMAGE }}
         push: true
 
 
 
 
-    # Deploy new version
     - run: echo "Deploy candidate"
 
     - name: Install Go
