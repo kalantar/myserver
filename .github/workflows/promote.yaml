@@ -22,7 +22,6 @@ env:
   # IKS_CLUSTER: kalantar-20211029-1 # name does not work
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
 
-  IMAGE: ${{ github.event.inputs.image }}
   NAMESPACE: ${{ github.event.inputs.namespace }}
 
 jobs:
@@ -72,8 +71,8 @@ jobs:
     # Do promotion
     - name: Deploy app
       run: |
-        iter8 gen go --set image=$IMAGE
-        iter8 gen go --set image=$IMAGE | kubectl -n $NAMESPACE apply -f -
+        iter8 gen go --set image=${{ github.event.inputs.image }}
+        iter8 gen go --set image=${{ github.event.inputs.image }} | kubectl -n $NAMESPACE apply -f -
 
 
 
