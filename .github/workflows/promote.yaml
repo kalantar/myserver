@@ -2,6 +2,10 @@ name: Promote (via Notify) and Cleanup
 on:
   workflow_dispatch:
     inputs:
+      ref:
+        description: 'Image of version to promote'
+        required: true
+        default: 'kalantar/myserver:latest'
       image:
         description: 'Image of version to promote'
         required: true
@@ -26,6 +30,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: echo "Deploy ${{ github.event.inputs.image }} to prod"
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.ref }}
 
     # Setup: Install Go/Iter8 so can use iter8 gen go -t deployment.tpl
     # Setup: Install Go/Iter8 so can use iter8 gen go to generate a deployment.yaml
