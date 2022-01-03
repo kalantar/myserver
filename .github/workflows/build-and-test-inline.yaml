@@ -100,6 +100,15 @@ jobs:
 
 
     # Run Iter8 experiment
+    - run: |
+        iter8 gen exp \
+          --set ref=${{ github.sha }} \
+          --set url="http://$INGRESS_SUBDOMAIN:$PORT" \
+          --set image="${{ env.IMAGE }}" \
+          --set namespace="${{ env.NAMESPACE }}" \
+          --set user='$USER' \
+          --set token='$TOKEN'
+        cat experiment.yaml
     - run: LOG_LEVEL=trace iter8 run
     - run: iter8 report
 
