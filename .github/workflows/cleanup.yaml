@@ -14,7 +14,7 @@ env:
   # IKS_CLUSTER: kalantar-20211029-1 # name does not work
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
 
-  NAMESPACE: ${{ github.event.inputs.namespace }}
+  TEST_NAMESPACE: ${{ github.event.inputs.namespace }}
 
 jobs:
   promote:
@@ -46,4 +46,4 @@ jobs:
         kubectl config current-context
 
     # Do cleanup
-    - run: kubectl delete --ignore-not-found namespace $NAMESPACE
+    - run: kubectl delete --ignore-not-found namespace $TEST_NAMESPACE

@@ -22,13 +22,15 @@ env:
   # IKS_CLUSTER: kalantar-20211029-1 # name does not work
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
 
-  NAMESPACE: ${{ github.event.inputs.namespace }}
+  IMAGE: ${{ github.event.inputs.image }}
+  PROD_NAMESPACE: prod-initiate
+  TEST_NAMESPACE: ${{ github.event.inputs.namespace }}
 
 jobs:
   promote:
     runs-on: ubuntu-latest
     steps:
-    - run: echo "Deploy ${{ github.event.inputs.image }} to prod"
+    - run: echo "Deploy ${{ github.event.inputs.image }} to production"
 
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -71,11 +73,11 @@ jobs:
     # Do promotion
     - name: Deploy app
       run: |
-        iter8 gen go --set image=${{ github.event.inputs.image }}
-        iter8 gen go --set image=${{ github.event.inputs.image }} | kubectl -n $NAMESPACE apply -f -
+        iter8 gen go --set image=$IMAGE
+        iter8 gen go --set image=$IMAGE | kubectl -n $PROD_NAMESPACE apply -f -
 
 
 
   # Cleanup Iter8 test by deleting test namespace
     - run: echo "Cleanup Test for build ${{ github.sha }}"
-    - run: kubectl delete --ignore-not-found namespace $NAMESPACE
+    - run: kubectl delete --ignore-not-found namespace $TEST_NAMESPACE
