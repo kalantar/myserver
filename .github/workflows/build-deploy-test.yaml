@@ -90,7 +90,9 @@ jobs:
         kubectl create ns ${{ env.NAMESPACE }} || true
 
     - name: Deploy app
-      run: iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
+      run: |
+        cd $EXPERIMENT_FOLDER
+        iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
 
     - name: Wait for app to Start
       run: kubectl -n ${{ env.NAMESPACE }} wait --for=condition=available --timeout=60s --all deployments 
