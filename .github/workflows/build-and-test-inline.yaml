@@ -106,7 +106,7 @@ jobs:
     - name: Run Iter8 experiment (in default namespace of cluster) 
       run: |
         cd $EXPERIMENT_FOLDER
-        iter8 gen exp 
+        iter8 gen exp \
           --set url="http://$INGRESS_SUBDOMAIN:${{ env.PORT }}"
         cat experiment.yaml
         LOG_LEVEL=trace iter8 run
