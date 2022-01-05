@@ -126,7 +126,9 @@ jobs:
 
     - name: promote
       if: success()
-      run: iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
+      run: | 
+        cd $EXPERIMENT_FOLDER
+        iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
 
     # Cleanup (remove) test directory
     - name: cleanup - delete testing artifacts
