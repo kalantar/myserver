@@ -6,6 +6,7 @@
     - lower: 400
     versionInfo:
     - url: {{ .url }}
+    # -url: http://{{ .namespace }}.myservice//:8080
 
 # task 2: validate service level objectives 
 # using the metrics collected in the above task

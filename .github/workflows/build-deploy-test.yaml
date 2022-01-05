@@ -10,6 +10,8 @@ env:
   IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
   INGRESS_SUBDOMAIN: 'kalantar-20211029-1-f0f5a1e5d9c5f09a7767f1f253010cba-0000.us-south.containers.appdomain.cloud'
 
+  EXPERIMENT_FOLDER: initiate-example
+
 jobs:
   build:
     name: build, deploy and initiate
@@ -102,6 +104,7 @@ jobs:
     # Then deploying it
     - name: Run Iter8 Experiment (in default namespace of cluster)
       run: |
+        cd $EXPERIMENT_FOLDER
         iter8 gen exp \
           --set ref=${{ github.sha }} \
           --set url="http://$INGRESS_SUBDOMAIN:$PORT" \
@@ -111,3 +114,6 @@ jobs:
           --set token='$TOKEN'
         cat experiment.yaml
         iter8 gen k8s --set loglevel=trace | kubectl apply -f -
+
+
+

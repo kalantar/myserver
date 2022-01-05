@@ -13,6 +13,7 @@ env:
   INGRESS_SUBDOMAIN: 'kalantar-20211029-1-f0f5a1e5d9c5f09a7767f1f253010cba-0000.us-south.containers.appdomain.cloud'
 
   PROD_NAMESPACE: prod-inline
+  EXPERIMENT_FOLDER: inline-example
 
 jobs:
   build:
@@ -100,15 +101,30 @@ jobs:
 
 
     # Run Iter8 experiment
-    - run: LOG_LEVEL=trace iter8 run
-    - run: iter8 report
+    - name: Run Iter8 experiment (in default namespace of cluster) 
+      run: |
+        cd $EXPERIMENT_FOLDER
+        iter8 gen exp 
+          --set url="http://$INGRESS_SUBDOMAIN:${{ env.PORT }}"
+        cat experiment.yaml
+        LOG_LEVEL=trace iter8 run
+        iter8 report
+        iter8 assert -c slos,completed,nofailure
+
+    # could we use a GH action instead? Eliminating Go, Iter8 install
+    # - uses: iter8/load-test@v1
+    #   with:
+    #     url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
+    #     error-rate: 0
+    #     p99.0: 50
+
+    # - uses: iter8/experiment@v1
+    #   with:
+    #     experiment-folder: <file>
 
     - name: promote
       if: success()
-      run: |
-        iter8 gen go --set image=${{ env.IMAGE }}
-        iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n $PROD_NAMESPACE apply -f -
-
+      run: iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
 
     # Cleanup (remove) test directory
     - name: cleanup - delete testing artifacts
