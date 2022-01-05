@@ -17,8 +17,8 @@
     - metric: built-in/error-rate
       upperLimit: 0
       # 95th percentile latency must be under 100 msec
-    - metric: built-in/p99.0
-      upperLimit: 50
+    - metric: built-in/p95.0
+      upperLimit: 150
 
 # task 3: if SLOs are satisfied, do something
 - if: SLOs()
