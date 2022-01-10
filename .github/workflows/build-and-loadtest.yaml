@@ -77,7 +77,7 @@ jobs:
         ibmcloud ks cluster config --cluster $IKS_CLUSTER
         kubectl config current-context
 
-    - name: Create target namespace
+    - name: Create experiment namespace
       run: |
         kubectl create ns ${{ env.NAMESPACE }} || true
 
@@ -105,9 +105,9 @@ jobs:
       if: success()
       run: | 
         cd $EXPERIMENT_FOLDER
-        iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
+        sed "s#{{ .image }}#${{ env.IMAGE }}#" go.tpl | kubectl -n $PROD_NAMESPACE apply -f -
 
-    # Cleanup (remove) test directory
+    # Cleanup (remove) test namespace
     - name: cleanup - delete testing artifacts
       if: always()
       run: kubectl delete --ignore-not-found namespace ${{ env.NAMESPACE }}

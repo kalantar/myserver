@@ -130,9 +130,9 @@ jobs:
       if: success()
       run: | 
         cd $EXPERIMENT_FOLDER
-        iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
+        iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n $PROD_NAMESPACE apply -f -
 
-    # Cleanup (remove) test directory
+    # Cleanup (remove) test namespace
     - name: cleanup - delete testing artifacts
       if: always()
       run: kubectl delete --ignore-not-found namespace ${{ env.NAMESPACE }}
