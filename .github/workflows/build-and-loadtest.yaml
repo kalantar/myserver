@@ -1,10 +1,8 @@
-name: Build and Deploy Candidate; Run Iter8 Experiment
+name: Build and Deploy Candidate; Run Iter8 Load Test
 
 on:
-  workflow_dispatch:
-# on:
-#   push:
-#     branches: [ main ]
+  push:
+    branches: [ main ]
 
 env:
   IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
@@ -58,14 +56,6 @@ jobs:
 
     - run: echo "Deploy candidate"
 
-    - name: Install Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.17
-  
-    - name: Install Iter8 CLI
-      run: GOBIN=/usr/local/bin go install github.com/iter8-tools/iter8@latest
-
     # Setup: Install IBM Cloud CLI
     - name: Install IBM Cloud CLI
       run: | 
@@ -94,7 +84,8 @@ jobs:
     - name: Deploy app
       run: |
         cd $EXPERIMENT_FOLDER
-        iter8 gen go --set image=${{ env.IMAGE }} | kubectl -n ${{ env.NAMESPACE }} apply -f -
+        sed "s#{{ .image }}#${{ env.IMAGE }}#" go.tpl 
+        sed "s#{{ .image }}#${{ env.IMAGE }}#" go.tpl | kubectl -n ${{ env.NAMESPACE }} apply -f -
 
     - name: Wait for app to Start
       run: kubectl -n ${{ env.NAMESPACE }} wait --for=condition=available --timeout=60s --all deployments 
@@ -104,27 +95,11 @@ jobs:
         echo "PORT=$port" >> $GITHUB_ENV
 
 
-    # Run Iter8 experiment
-    - name: Run Iter8 experiment (in default namespace of cluster) 
-      run: |
-        cd $EXPERIMENT_FOLDER
-        iter8 gen exp \
-          --set url="http://$INGRESS_SUBDOMAIN:${{ env.PORT }}"
-        cat experiment.yaml
-        LOG_LEVEL=trace iter8 run
-        iter8 report
-        iter8 assert -c slos,completed,nofailure
-
-    # could we use a GH action instead? Eliminating Go, Iter8 install
-    # - uses: iter8/load-test@v1
-    #   with:
-    #     url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
-    #     error-rate: 0
-    #     p99.0: 50
-
-    # - uses: iter8/experiment@v1
-    #   with:
-    #     experiment-folder: <file>
+    - uses: kalantar/iter8-run@main
+      with:
+        url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
+        # error-rate: 0
+        # p99.0: 50
 
     - name: promote
       if: success()
