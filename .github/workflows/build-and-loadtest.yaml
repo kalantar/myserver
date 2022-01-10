@@ -98,8 +98,8 @@ jobs:
     - uses: kalantar/iter8-run@main
       with:
         url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
-        # error-rate: 0
-        # p99.0: 50
+        mean-latency: 100
+        p95-latency: 150
 
     - name: promote
       if: success()
