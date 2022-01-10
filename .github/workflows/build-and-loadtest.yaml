@@ -95,6 +95,7 @@ jobs:
         echo "PORT=$port" >> $GITHUB_ENV
 
 
+    # Run load test using GH action (don't use Iter8 directly)
     - uses: kalantar/iter8-run@main
       with:
         url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
