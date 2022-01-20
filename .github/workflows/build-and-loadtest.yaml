@@ -100,7 +100,7 @@ jobs:
       with:
         url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
         mean_latency: 100
-        p95_0: 150
+        p95: 150
 
     - name: promote
       if: success()
