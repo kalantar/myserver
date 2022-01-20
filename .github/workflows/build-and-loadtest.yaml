@@ -96,11 +96,11 @@ jobs:
 
 
     # Run load test using GH action (don't use Iter8 directly)
-    - uses: kalantar/iter8-run@main
+    - uses: kalantar/iter8-run/load-test@main
       with:
         url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
         mean_latency: 100
-        p95_latency: 150
+        p95_0: 150
 
     - name: promote
       if: success()
