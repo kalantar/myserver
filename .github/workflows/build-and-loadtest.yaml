@@ -99,6 +99,7 @@ jobs:
     - uses: kalantar/iter8-run/load-test@main
       with:
         url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
+        error_rate: 0
         mean_latency: 100
         p95: 150
 
