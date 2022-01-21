@@ -59,7 +59,13 @@ jobs:
     # Setup: Install IBM Cloud CLI
     - name: Install IBM Cloud CLI
       run: | 
-        curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        # curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        curl -L -o /tmp/IBM_Cloud_CLI.tar.gz https://download.clis.cloud.ibm.com/ibm-cloud-cli/2.4.0/IBM_Cloud_CLI_2.4.0_amd64.tar.gz
+        cd /tmp
+        tar -xvf /tmp/IBM_Cloud_CLI.tar.gz
+        chmod 755 /tmp/Bluemix_CLI/install
+        /tmp/Bluemix_CLI/install -q
+        
         ibmcloud --version
         ibmcloud config --check-version=false
         ibmcloud plugin install -f kubernetes-service
