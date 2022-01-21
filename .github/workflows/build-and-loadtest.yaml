@@ -102,7 +102,7 @@ jobs:
 
 
     # Run load test using GH action (don't use Iter8 directly)
-    - uses: kalantar/iter8/load-test@action
+    - uses: iter8-tools/iter8/load-test@1e87324a5463e146bd8b3ec4e4f4b20d2029b0d4
       with:
         url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
         error_rate: 0
