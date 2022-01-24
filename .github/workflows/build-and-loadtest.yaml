@@ -113,13 +113,13 @@ jobs:
 
     - run: |
         cat << EOF > values.yaml
-        url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
-        SLOs:
-          error-rate: 0
-          mean-latency: 0
-          p90: 150
-          p97.5: 200
-        EOF
+url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
+SLOs:
+  error-rate: 0
+  mean-latency: 0
+  p90: 150
+  p97.5: 200
+EOF
     - uses: kalantar/iter8-run/load-test@main
     # - uses: iter8-tools/iter8/load-test@pull/1150/head
       with:
