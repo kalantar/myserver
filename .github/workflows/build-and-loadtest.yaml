@@ -121,8 +121,9 @@ jobs:
             p97.5: 200
         EOF
         cat values.yaml
-    - uses: iter8-tools/iter8/load-test@pull/1150/head
+    - uses: iter8-tools/iter8/run-experiment@pull/1150/head
       with:
+        chart: load-test
         valuesFile: ../values.yaml
         logLevel: trace
 
