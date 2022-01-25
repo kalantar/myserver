@@ -124,6 +124,7 @@ jobs:
     # - uses: iter8-tools/iter8/load-test@pull/1150/head
       with:
         values: /tmp/myvalues.yaml
+        log_level: trace
 
     - name: promote
       if: success()
