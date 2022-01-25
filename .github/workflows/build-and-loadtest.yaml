@@ -120,8 +120,7 @@ jobs:
             p90: 150
             p97.5: 200
         EOF
-    - uses: kalantar/iter8-run/load-test@main
-    # - uses: iter8-tools/iter8/load-test@pull/1150/head
+    - uses: iter8-tools/iter8/load-test@pull/1150/head
       with:
         values: ../values.yaml
         log_level: trace
