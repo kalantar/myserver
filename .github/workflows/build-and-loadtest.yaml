@@ -112,14 +112,20 @@ jobs:
     #     p97_5: 200
 
     - run: |
-        cat << EOF > myvalues.yaml
-          url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
-          SLOs:
-            error-rate: 0
-            mean-latency: 0
-            p90: 150
-            p97.5: 200
-        EOF
+        # cat << EOF > myvalues.yaml
+        #   url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
+        #   SLOs:
+        #     error-rate: 0
+        #     mean-latency: 0
+        #     p90: 150
+        #     p97.5: 200
+        # EOF
+        echo "url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}" > myvalues.yaml
+        echo "SLOs:" >> myvalues.yaml
+        echo "  error-rate: 0" >> myvalues.yaml
+        echo "  mean-latency: 0" >> myvalues.yaml
+        echo "  p90: 150" >> myvalues.yaml
+        echo "  p97.5: 200" >> myvalues.yaml
     - uses: kalantar/iter8-run/load-test@main
     # - uses: iter8-tools/iter8/load-test@pull/1150/head
       with:
