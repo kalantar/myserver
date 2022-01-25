@@ -127,11 +127,12 @@ jobs:
         echo "  p90: 150" >> myvalues.yaml
         echo "  p97.5: 200" >> myvalues.yaml
         cat myvalues.yaml
+        pwd
       name: Prepare values.yaml
     - uses: kalantar/iter8-run/load-test@main
     # - uses: iter8-tools/iter8/load-test@pull/1150/head
       with:
-        values: myvalues.yaml
+        values: ../myvalues.yaml
 
     - name: promote
       if: success()
