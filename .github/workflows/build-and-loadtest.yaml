@@ -116,14 +116,14 @@ jobs:
         #   url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
         #   SLOs:
         #     error-rate: 0
-        #     mean-latency: 0
+        #     mean-latency: 100
         #     p90: 150
         #     p97.5: 200
         # EOF
         echo "url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}" > myvalues.yaml
         echo "SLOs:" >> myvalues.yaml
         echo "  error-rate: 0" >> myvalues.yaml
-        echo "  mean-latency: 0" >> myvalues.yaml
+        echo "  mean-latency: 100" >> myvalues.yaml
         echo "  p90: 150" >> myvalues.yaml
         echo "  p97.5: 200" >> myvalues.yaml
         cat myvalues.yaml
