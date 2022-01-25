@@ -123,8 +123,8 @@ jobs:
         cat values.yaml
     - uses: iter8-tools/iter8/load-test@pull/1150/head
       with:
-        values: ../values.yaml
-        log_level: trace
+        valuesFile: ../values.yaml
+        logLevel: trace
 
     - name: promote
       if: success()
