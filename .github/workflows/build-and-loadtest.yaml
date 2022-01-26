@@ -5,11 +5,11 @@ on:
     branches: [ main ]
 
 env:
-  IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
-  IBM_CLOUD_RESOURCE_GROUP: 585330279c4b4175890b5c59dab786fb
-  IBM_CLOUD_REGION: us-south
-  # IKS_CLUSTER: kalantar-20211029-1 # name does not work
-  IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
+  # IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+  # IBM_CLOUD_RESOURCE_GROUP: 585330279c4b4175890b5c59dab786fb
+  # IBM_CLOUD_REGION: us-south
+  # # IKS_CLUSTER: kalantar-20211029-1 # name does not work
+  # IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
   INGRESS_SUBDOMAIN: 'kalantar-20211029-1-f0f5a1e5d9c5f09a7767f1f253010cba-0000.us-south.containers.appdomain.cloud'
 
   PROD_NAMESPACE: prod-inline
@@ -56,32 +56,40 @@ jobs:
 
     - run: echo "Deploy candidate"
 
-    # Setup: Install IBM Cloud CLI
-    - name: Install IBM Cloud CLI
-      run: | 
-        # curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
-        curl -L -o /tmp/IBM_Cloud_CLI.tar.gz https://download.clis.cloud.ibm.com/ibm-cloud-cli/2.4.0/IBM_Cloud_CLI_2.4.0_amd64.tar.gz
-        cd /tmp
-        tar -xvf /tmp/IBM_Cloud_CLI.tar.gz
-        chmod 755 /tmp/Bluemix_CLI/install
-        /tmp/Bluemix_CLI/install -q
-        
-        ibmcloud --version
-        ibmcloud config --check-version=false
-        ibmcloud plugin install -f kubernetes-service
-        ibmcloud plugin install -f container-registry
+    - uses: kalantar/iks@main
+      with:
+        IBM_CLOUD_API_KEY: ${{ secrets.IBM_CLOUD_API_KEY }}
+        IBM_CLOUD_RESOURCE_GROUP: 585330279c4b4175890b5c59dab786fb
+        IBM_CLOUD_REGION: us-south
+        # IKS_CLUSTER: kalantar-20211029-1 # name does not work
+        IKS_CLUSTER: c5u1ej8d00c0squuquog # name or id of cluster
 
-    - name: Authenticate with IBM Cloud CLI
-      run: |
-        ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
-        ibmcloud cr region-set "${IBM_CLOUD_REGION}"
-        ibmcloud cr login
+    # # Setup: Install IBM Cloud CLI
+    # - name: Install IBM Cloud CLI
+    #   run: | 
+    #     # curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+    #     curl -L -o /tmp/IBM_Cloud_CLI.tar.gz https://download.clis.cloud.ibm.com/ibm-cloud-cli/2.4.0/IBM_Cloud_CLI_2.4.0_amd64.tar.gz
+    #     cd /tmp
+    #     tar -xvf /tmp/IBM_Cloud_CLI.tar.gz
+    #     chmod 755 /tmp/Bluemix_CLI/install
+    #     /tmp/Bluemix_CLI/install -q
+        
+    #     ibmcloud --version
+    #     ibmcloud config --check-version=false
+    #     ibmcloud plugin install -f kubernetes-service
+    #     ibmcloud plugin install -f container-registry
+
+    # - name: Authenticate with IBM Cloud CLI
+    #   run: |
+    #     ibmcloud login --apikey "${IBM_CLOUD_API_KEY}" -r "${IBM_CLOUD_REGION}" -g default
+    #     ibmcloud cr region-set "${IBM_CLOUD_REGION}"
+    #     ibmcloud cr login
       
-    - name: Identify target cluster
-      run: |
-        ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
-        ibmcloud ks cluster config --cluster $IKS_CLUSTER
-        kubectl config current-context
+    # - name: Identify target cluster
+    #   run: |
+    #     ibmcloud target -g $IBM_CLOUD_RESOURCE_GROUP
+    #     ibmcloud ks cluster config --cluster $IKS_CLUSTER
+    #     kubectl config current-context
 
     - name: Create experiment namespace
       run: |
