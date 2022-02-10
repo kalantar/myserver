@@ -108,25 +108,14 @@ jobs:
         port=$(kubectl -n ${{ env.NAMESPACE }} get svc myservice -o jsonpath='{.spec.ports[0].nodePort}')
         echo "PORT=$port" >> $GITHUB_ENV
 
-
-    # Run load test using GH action (don't use Iter8 directly)
-    # - uses: iter8-tools/iter8/load-test@1e87324a5463e146bd8b3ec4e4f4b20d2029b0d4
-    # - uses: iter8-tools/iter8/load-test@pull/1150/head
-    #   with:
-    #     url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
-    #     error_rate: 0
-    #     mean_latency: 100
-    #     p90: 150
-    #     p97_5: 200
-
     - run: |
         cat << EOF > values.yaml
           url: http://${{ env.INGRESS_SUBDOMAIN}}:${{ env.PORT }}
           SLOs:
             error-rate: 0
-            mean-latency: 100
-            p90: 150
-            p97.5: 200
+            latency-mean: 100
+            latency-p90: 150
+            latency-p97.5: 200
         EOF
         cat values.yaml
     # - uses: iter8-tools/iter8/run-experiment@pull/1150/head
