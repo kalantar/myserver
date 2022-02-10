@@ -133,7 +133,7 @@ jobs:
     - uses: iter8-tools/iter8/load-test@pull/1150/head
     # - uses: kalantar/iter8-run/lt@main
       with:
-        # chart: load-test
+        # chart: load-test-http
         valuesFile: ../values.yaml
         logLevel: trace
 
