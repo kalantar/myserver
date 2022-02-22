@@ -119,10 +119,10 @@ jobs:
         EOF
         cat values.yaml
     # - uses: iter8-tools/iter8/run-experiment@pull/1150/head
-    - uses: iter8-tools/iter8/load-test@pull/1150/head
-    # - uses: kalantar/iter8-run/lt@main
+    # - uses: iter8-tools/iter8/load-test@pull/1150/head
+    - uses: kalantar/iter8-run@main
       with:
-        # chart: load-test-http
+        chart: load-test-http
         valuesFile: ../values.yaml
         logLevel: trace
 
