@@ -124,7 +124,7 @@ jobs:
         chart: load-test-http
         valuesFile: experiment-config.yaml
         # validateSLOs: false
-        logLevel: fatal
+        logLevel: Fatal
 
     - name: promote
       if: success()
