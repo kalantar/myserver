@@ -118,7 +118,7 @@ jobs:
         cat experiment-config.yaml
     # - uses: kalantar/iter8-run@main
     # - uses: iter8-tools/iter8@pull/1150/head
-    - uses: iter8-tools/iter8-action@main
+    - uses: iter8-tools/iter8-action@pull/2/head
       with:
         chart: load-test-http
         valuesFile: experiment-config.yaml
