@@ -114,18 +114,16 @@ jobs:
           SLOs:
             http/error-rate: 0
             http/latency-mean: 100
-            http/latency-p90: 150
-            http/latency-p97.5: 200
         EOF
         cat experiment-config.yaml
-    - uses: kalantar/iter8-run@main
+    # - uses: kalantar/iter8-run@main
     # - uses: iter8-tools/iter8@pull/1150/head
+    - uses: iter8/iter8-action@main
       with:
         chart: load-test-http
         valuesFile: experiment-config.yaml
         # validateSLOs: false
-        logLevel: trace
-        chartVersion: 0.2.0
+        # logLevel: trace
 
     - name: promote
       if: success()
