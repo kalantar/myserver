@@ -162,6 +162,7 @@ jobs:
 
     - name: run example
       run: |
+        docker pull docker.io/grpc/java-example-hostname:latest
         docker run -p 50051:50051 docker.io/grpc/java-example-hostname:latest &
         sleep 5
         
@@ -173,9 +174,9 @@ jobs:
                   --set-string protoURL="https://raw.githubusercontent.com/grpc/grpc-go/master/examples/helloworld/helloworld/helloworld.proto" \
                   --set data.name="frodo" \
                   --set SLOs.grpc/error-rate=0 \
-                  --set SLOs.grpc/latency/mean=50 \
-                  --set SLOs.grpc/latency/p90=100 \
-                  --set SLOs.grpc/latency/p'97\.5'=200
+                  --set SLOs.grpc/latency/mean=150 \
+                  --set SLOs.grpc/latency/p90=300 \
+                  --set SLOs.grpc/latency/p'97\.5'=500
         cat experiment.yaml
         iter8 report
         iter8 assert -c completed -c nofailure -c slos
@@ -190,9 +191,9 @@ jobs:
             name: frodo
           SLOs:
             grpc/error-rate: 0
-            grpc/latency/mean: 50
-            grpc/latency/p90: 100
-            grpc/latency/p97.5: 200
+            grpc/latency/mean: 150
+            grpc/latency/p90: 300
+            grpc/latency/p97.5: 500
         EOF
         cat experiment-config.yaml
     - run: |
@@ -212,9 +213,9 @@ jobs:
             name: frodo
           SLOs:
             grpc/error-rate: 0
-            grpc/latency/mean: 50
-            grpc/latency/p90: 100
-            grpc/latency/p97.5: 200
+            grpc/latency/mean: 150
+            grpc/latency/p90: 300
+            grpc/latency/p97.5: 500
         EOF
         cat experiment-config.yaml
     - uses: iter8-tools/iter8-action@pull/4/head
