@@ -184,7 +184,7 @@ jobs:
     - name: load test grpc service method 2
       run: | 
         cat << EOF > experiment-config.yaml
-          host: host.docker.internal:50051
+          host: 127.0.0.1:50051
           call: helloworld.Greeter.SayHello
           protoURL: https://raw.githubusercontent.com/grpc/grpc-go/master/examples/helloworld/helloworld/helloworld.proto
           data:
@@ -206,7 +206,7 @@ jobs:
     - name: load test grpc service method 3
       run: | 
         cat << EOF > experiment-config.yaml
-          host: 127.0.0.1:50051
+          host: host.docker.internal:50051
           call: helloworld.Greeter.SayHello
           protoURL: https://raw.githubusercontent.com/grpc/grpc-go/master/examples/helloworld/helloworld/helloworld.proto
           data:
