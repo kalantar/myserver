@@ -154,7 +154,22 @@ jobs:
         ./main &
         sleep 5
         
-    - name: load test grpc service method
+    - name: load test grpc service method 1
+      run: |
+        set -e
+        iter8 launch -l trace -c load-test-grpc --set-string host="127.0.0.1:50051" \
+                  --set-string call="helloworld.Greeter.SayHello" \
+                  --set-string protoURL="https://raw.githubusercontent.com/grpc/grpc-go/master/examples/helloworld/helloworld/helloworld.proto" \
+                  --set data.name="frodo" \
+                  --set SLOs.grpc/error-rate=0 \
+                  --set SLOs.grpc/latency/mean=50 \
+                  --set SLOs.grpc/latency/p90=100 \
+                  --set SLOs.grpc/latency/p'97\.5'=200
+        cat experiment.yaml
+        iter8 report
+        iter8 assert -c completed -c nofailure -c slos
+
+    - name: load test grpc service method 2
       run: | 
         cat << EOF > experiment-config.yaml
           host: 127.0.0.1:50051
@@ -174,4 +189,3 @@ jobs:
         chart: load-test-grpc
         valuesFile: experiment-config.yaml
         logLevel: trace
-        validateSLOs: true
