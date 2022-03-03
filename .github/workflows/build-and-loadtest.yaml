@@ -164,7 +164,10 @@ jobs:
       run: |
         docker pull docker.io/grpc/java-example-hostname:latest
         docker run -p 50051:50051 docker.io/grpc/java-example-hostname:latest &
-        sleep 5
+        sleep 20
+        ip -f inet addr show docker0 | grep -Po 'inet \K[\d.]+'
+        echo "GRPC_HOST_IP=$(ip -f inet addr show docker0 | grep -Po 'inet \K[\d.]+')" >> $GITHUB_ENV
+        echo "GRPC_HOST_IP=$GRPC_HOST_IP"
         
     - name: load test grpc service method 1
       run: |
@@ -206,7 +209,7 @@ jobs:
     - name: load test grpc service method 3
       run: | 
         cat << EOF > experiment-config.yaml
-          host: host.docker.internal:50051
+          host: $GRPC_HOST_IP:50051
           call: helloworld.Greeter.SayHello
           protoURL: https://raw.githubusercontent.com/grpc/grpc-go/master/examples/helloworld/helloworld/helloworld.proto
           data:
