@@ -87,7 +87,7 @@ jobs:
         chart: load-test-http
         valuesFile: experiment-config.yaml
         # validateSLOs: false
-        # logLevel: trace
+        logLevel: trace
 
     - name: promote
       if: success()
