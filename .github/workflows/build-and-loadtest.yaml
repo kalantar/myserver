@@ -82,7 +82,7 @@ jobs:
         EOF
         cat experiment-config.yaml
     # - uses: iter8-tools/iter8-action@v1
-    - uses: kalantar/iter-run@main
+    - uses: kalantar/iter8-run@main
       with:
         chart: load-test-http
         valuesFile: experiment-config.yaml
