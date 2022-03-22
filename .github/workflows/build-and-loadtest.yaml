@@ -81,7 +81,8 @@ jobs:
             http/latency-mean: 100
         EOF
         cat experiment-config.yaml
-    - uses: iter8-tools/iter8-action@v1
+    # - uses: iter8-tools/iter8-action@v1
+    - uses: kalantar/iter-run@main
       with:
         chart: load-test-http
         valuesFile: experiment-config.yaml
