@@ -23,7 +23,7 @@ jobs:
         done;
 
     - name: install Iter8 CLI
-      uses: kalantar/iter8-run@main
+      uses: kalantar/iter8-run@v0.10.4
     - name: version
       run: | 
         iter8 version
