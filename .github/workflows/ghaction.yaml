@@ -1,4 +1,4 @@
-name: tests
+name: Test Iter8 v2 GH action
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         done;
 
     - name: install Iter8 CLI
-      uses: iter8-tools/iter8@refs/pull/1224/merge
+      uses: kalantar/iter8-run@main
     - name: version
       run: | 
         iter8 version
