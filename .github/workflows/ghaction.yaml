@@ -42,11 +42,11 @@ jobs:
       run: | 
         iter8 version
 
-  latest:
+  stable:
     runs-on: ubuntu-latest
     steps:
     - name: install Iter8 CLI
-      uses: kalantar/iter8-run@latest
+      uses: kalantar/iter8-run@stable
     - name: version
       run: | 
         iter8 version
