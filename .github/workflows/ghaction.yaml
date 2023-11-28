@@ -6,48 +6,102 @@ on:
   workflow_dispatch:
 
 jobs:
-  v0-10-3:
-    runs-on: ubuntu-latest
-    steps:
-    - name: install Iter8 CLI
-      uses: kalantar/iter8-run@v0.10.3
-    - name: version
-      run: | 
-        iter8 version
-
-  v0-10-4:
-    runs-on: ubuntu-latest
-    steps:
-    - name: install Iter8 CLI
-      uses: kalantar/iter8-run@v0.10.4
-    - name: version
-      run: | 
-        iter8 version
-
   v0-10:
     runs-on: ubuntu-latest
     steps:
-    - name: install Iter8 CLI
-      uses: kalantar/iter8-run@v0.10
-    - name: version
-      run: | 
-        iter8 version
+    - name: Install Iter8
+      uses: iter8-tools/iter8@v0.10
 
-  v0-9:
+  v0-11:
     runs-on: ubuntu-latest
     steps:
-    - name: install Iter8 CLI
-      uses: kalantar/iter8-run@v0.9
-    - name: version
-      run: | 
-        iter8 version
+    - name: Install Iter8
+      uses: iter8-tools/iter8@v0.11
 
-  stable:
+  v0-12:
     runs-on: ubuntu-latest
     steps:
-    - name: install Iter8 CLI
-      uses: kalantar/iter8-run@stable
-    - name: version
-      run: | 
-        iter8 version
+    - name: Install Iter8
+      uses: iter8-tools/iter8@v0.12
+    
+  v0-13:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Iter8
+      uses: iter8-tools/iter8@v0.13
+
+  v0-14:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Iter8
+      uses: iter8-tools/iter8@v0.14
+    
+  v0-15:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Iter8
+      uses: iter8-tools/iter8@v0.15
+
+  v0-16:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Iter8
+      uses: iter8-tools/iter8@v0.16
+
+  v0-17:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Iter8
+      uses: iter8-tools/iter8@v0.17
+    
+  v0-18:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Iter8
+      uses: iter8-tools/iter8@v0.18
+    
+  # v0-10-3:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: install Iter8 CLI
+  #     uses: kalantar/iter8-run@v0.10.3
+  #   - name: version
+  #     run: | 
+  #       iter8 version
+
+  # v0-10-4:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: install Iter8 CLI
+  #     uses: kalantar/iter8-run@v0.10.4
+  #   - name: version
+  #     run: | 
+  #       iter8 version
+
+  # v0-10:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: install Iter8 CLI
+  #     uses: kalantar/iter8-run@v0.10
+  #   - name: version
+  #     run: | 
+  #       iter8 version
+
+  # v0-9:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: install Iter8 CLI
+  #     uses: kalantar/iter8-run@v0.9
+  #   - name: version
+  #     run: | 
+  #       iter8 version
+
+  # stable:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: install Iter8 CLI
+  #     uses: kalantar/iter8-run@stable
+  #   - name: version
+  #     run: | 
+  #       iter8 version
 
